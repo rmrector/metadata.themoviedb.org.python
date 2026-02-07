@@ -136,7 +136,7 @@ class TMDBMovieScraper(object):
             info['duration'] = movie['runtime'] * 60
 
         ratings = {'themoviedb': {'rating': float(movie['vote_average']), 'votes': int(movie['vote_count'])}}
-        uniqueids = {'tmdb': str(movie['id']), 'imdb': movie['imdb_id']}
+        uniqueids = _parse_uniqueids(movie)
         cast = [{
                 'name': actor['name'],
                 'role': actor['character'],
@@ -163,6 +163,12 @@ def _parse_media_id(title):
     elif title.startswith('imdb/tt') and title[7:].isdigit(): # IMDB ID with prefix to match
         return {'type': 'imdb', 'id':title[5:]}
     return None
+
+def _parse_uniqueids(movie):
+    uniqueids = {'tmdb': str(movie['id'])}
+    if movie.get('imdb_id'):
+        uniqueids['imdb'] = movie['imdb_id']
+    return uniqueids
 
 def _get_movie(mid, language=None, search=False):
     details = None if search else \
