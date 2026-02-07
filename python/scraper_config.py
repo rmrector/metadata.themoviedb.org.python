@@ -75,6 +75,9 @@ def _configure_default_rating(details, settings):
 def _configure_tags(details, settings):
     if not settings.getSettingBool('add_tags'):
         del details['info']['tag']
+    elif settings.getSettingBool('enable_tag_whitelist'):
+        whitelist = set(tag.strip().lower() for tag in settings.getStringList('tag_whitelist'))
+        details['info']['tag'] = [tag for tag in details['info']['tag'] if tag.lower() in whitelist]
     return details
 
 # pylint: disable=invalid-name
@@ -101,6 +104,9 @@ class PathSpecificSettings(object):
 
     def getSettingString(self, id):
         return self._inner_get_setting(id, basestring, '')
+
+    def getStringList(self, id):
+        return self._inner_get_setting(id, list, [])
 
     def _inner_get_setting(self, setting_id, setting_type, default):
         value = self.data.get(setting_id)
