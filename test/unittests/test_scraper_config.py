@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name,protected-access,too-many-lines,unused-argument
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call
 
 from python import scraper_config
 
@@ -201,14 +201,14 @@ class TestScraperConfig(unittest.TestCase):
         tags = ["tag 1", "tag 2"]
         input_details = {'info': {'tag': tags}}
         input_settings = MagicMock(spec=['getSettingBool'])
-        input_settings.getSettingBool.return_value = True
+        input_settings.getSettingBool.side_effect = [True, False]
 
         expected_output = {'info': {'tag': tags}}
 
         actual_output = scraper_config._configure_tags(input_details, input_settings)
 
         self.assertListEqual(expected_output['info']['tag'], actual_output['info']['tag'])
-        input_settings.getSettingBool.assert_called_once_with('add_tags')
+        input_settings.getSettingBool.assert_has_calls([call('add_tags'), call('enable_tag_whitelist')])
 
     def test_configure_tags__false(self):
         input_details = {'info': {'tag': ["tag 1", "tag 2"]}}
@@ -221,6 +221,21 @@ class TestScraperConfig(unittest.TestCase):
 
         self.assertDictEqual(expected_output['info'], actual_output['info'])
         input_settings.getSettingBool.assert_called_once_with('add_tags')
+
+    def test_configure_tags__whitelist(self):
+        tags = ["tag 1", "tag 2"]
+        input_details = {'info': {'tag': tags}}
+        input_settings = MagicMock(spec=['getSettingBool', 'getStringList'])
+        input_settings.getSettingBool.return_value = True
+        input_settings.getStringList.return_value = ["tag 1", "tag 3"]
+
+        expected_output = {'info': {'tag': ["tag 1"]}}
+
+        actual_output = scraper_config._configure_tags(input_details, input_settings)
+
+        self.assertListEqual(expected_output['info']['tag'], actual_output['info']['tag'])
+        input_settings.getSettingBool.assert_has_calls([call('add_tags'), call('enable_tag_whitelist')])
+        input_settings.getStringList.assert_called_once_with('tag_whitelist')
 
 
 class TestPathSpecificSettings(unittest.TestCase):
