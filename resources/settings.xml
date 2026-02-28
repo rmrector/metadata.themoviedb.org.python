@@ -153,6 +153,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="keyart" type="boolean" label="30018" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="trailer" type="boolean" label="30004" help="">
 					<level>0</level>
 					<default>true</default>

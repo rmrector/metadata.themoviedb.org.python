@@ -12,7 +12,8 @@ def configure_tmdb_artwork(details, settings):
         return details
 
     art = details['available_art']
-    if not settings.getSettingBool('fetch_posters'):
+    posters_enabled = settings.getSettingBool('fetch_posters')
+    if not posters_enabled:
         if 'poster' in art:
             del art['poster']
         if 'set.poster' in art:
@@ -32,6 +33,15 @@ def configure_tmdb_artwork(details, settings):
             if fanart_enabled:
                 art['set.fanart'] = art.get('set.fanart', []) + art['set.landscape']
             del art['set.landscape']
+    if not settings.getSettingBool('keyart'):
+        if 'keyart' in art:
+            if posters_enabled:
+                art['poster'] = art.get('poster', []) + art['keyart']
+            del art['keyart']
+        if 'set.keyart' in art:
+            if posters_enabled:
+                art['set.poster'] = art.get('set.poster', []) + art['set.keyart']
+            del art['set.keyart']
 
     return details
 
