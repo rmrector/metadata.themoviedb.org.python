@@ -1,5 +1,5 @@
 import unittest
-from python.lib.tmdbscraper.tmdb import _build_fanart_list, _build_image_list
+from python.lib.tmdbscraper.tmdb import _build_list_without_titles, _build_image_list
 
 class TestBuildImageList(unittest.TestCase):
     def setUp(self):
@@ -26,20 +26,20 @@ class TestBuildImageList(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
 
-    def test_build_fanart_list_from_language_none(self):
+    def test_build_titlefree_list_from_language_none(self):
         imagelist = [
             {'file_path': '/img1.jpg', 'iso_639_1': None},
             {'file_path': '/img3.jpg', 'iso_639_1': 'en'}
         ]
-        result = _build_fanart_list(imagelist, self.urlbases)
+        result = _build_list_without_titles(imagelist, self.urlbases)
 
         self.assertEqual(len(result), 1)
 
-    def test_build_fanart_list_from_language_xx(self):
+    def test_build_titlefree_list_from_language_xx(self):
         imagelist = [
             {'file_path': '/img1.jpg', 'iso_639_1': 'xx'},
             {'file_path': '/img3.jpg', 'iso_639_1': 'en'}
         ]
-        result = _build_fanart_list(imagelist, self.urlbases)
+        result = _build_list_without_titles(imagelist, self.urlbases)
 
         self.assertEqual(len(result), 1)
