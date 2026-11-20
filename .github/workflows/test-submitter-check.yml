@@ -1,0 +1,29 @@
+name: Test submitter (check only)
+
+# Runs only the preflight checks of the bundled submitter against real GitHub.
+# Nothing is pushed and no pull request is created. With "sync-fork" it also
+# makes your fork's nexus branch identical to upstream (that is the one write).
+on:
+  workflow_dispatch:
+    inputs:
+      sync-fork:
+        description: 'Run the check as the action does with sync-fork: true'
+        type: boolean
+        default: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the bundled submitter
+        run: pip install ./.github/actions/kodi-addon-submitter/submitter
+      - name: Preflight check
+        env:
+          GH_USERNAME: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          EMAIL: ${{ secrets.EMAIL }}
+        run: submit-addon --check -r repo-scrapers -b nexus ${{ inputs.sync-fork && '--sync-fork' || '' }}

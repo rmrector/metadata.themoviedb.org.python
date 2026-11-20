@@ -1,0 +1,43 @@
+# action.yml
+name: 'Kodi addon submitter action'
+description: 'Automatically submits your addon to the official repository when creating a new tag'
+inputs:
+  kodi-repository:
+    description: 'Repository name: repo-plugins (github.com/xbmc/repo-plugins), repo-scripts (github.com/xbmc/repo-scripts), repo-scrapers, etc.'
+    required: true
+    default: 'repo-plugins'
+  kodi-version:
+    description: 'Target branch in the repository = minimal Kodi version codename where this addon should work (e.g. leia, matrix, nexus, omega)'
+    required: true
+    default: 'omega'
+  addon-id:
+    description: 'Your addon id'
+    required: true
+    default: ''
+  kodi-matrix:
+    description: 'Submit a Python 2/3 compatible addon to matrix branch in addition to the target branch'
+    required: false
+    default: false
+  sub-directory:
+    description: 'Addon is stored in its own directory within the git repo'
+    required: false
+    default: false
+  sync-fork:
+    description: 'Before submitting, make the target branch of your fork identical to upstream (fast-forward, or force-update if diverged). Do not use if your fork branch holds work you want to keep.'
+    required: false
+    default: false
+outputs:
+    addon-zip:
+        description: 'The path to the zip file of the addon'
+    addon-zip-matrix:
+        description: 'The path to the zip file of the addon release for matrix (PEP440 local version identifier) if kodi-matrix input is true.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.kodi-repository }}
+    - ${{ inputs.kodi-version }}
+    - ${{ inputs.addon-id }}
+    - ${{ inputs.kodi-matrix }}
+    - ${{ inputs.sub-directory }}
+    - ${{ inputs.sync-fork }}

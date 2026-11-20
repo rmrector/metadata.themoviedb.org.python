@@ -1,0 +1,34 @@
+name: Test local action (REAL submission)
+
+# Runs the bundled local copy of the action end to end: Docker build, entrypoint,
+# preflight, zip, fork branch push and a pull request against xbmc/repo-scrapers.
+# This is a REAL submission. Close the pull request afterwards if it was only a test.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "submit" to confirm that a real pull request will be opened'
+        required: true
+      sync-fork:
+        type: boolean
+        default: false
+
+jobs:
+  submit:
+    if: inputs.confirm == 'submit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: kodi-addon-submitter
+        uses: ./.github/actions/kodi-addon-submitter
+        with:
+          kodi-repository: repo-scrapers
+          kodi-version: nexus
+          addon-id: metadata.themoviedb.org.python
+          kodi-matrix: false
+          sync-fork: ${{ inputs.sync-fork }}
+        env:
+          GH_USERNAME: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          EMAIL: ${{ secrets.EMAIL }}
+      - run: echo "zip=${{ steps.kodi-addon-submitter.outputs.addon-zip }}"
