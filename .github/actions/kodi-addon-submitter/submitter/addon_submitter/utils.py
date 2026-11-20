@@ -240,16 +240,12 @@ def preflight(repo, branches, gh_username, gh_token, user_email, sync_fork=False
                     ', '.join(sorted(scopes)) or 'none', TOKEN_URL)
             )
         if 'workflow' not in scopes:
-            message = (
-                'GH_TOKEN is missing the "workflow" scope (has: {}). GitHub can reject pushes '
-                'of branches that include .github/workflows changes without it, which '
-                'happens when your fork is behind an upstream that changed a workflow. '
-                'Add the scope at {}'.format(', '.join(sorted(scopes)), TOKEN_URL)
-            )
-            if not sync_fork:
-                raise AddonSubmissionError(message + ', or enable --sync-fork.')
-            warn(message + '. Continuing because --sync-fork is enabled, which keeps the '
-                 'fork up to date; if syncing is rejected too, add the scope.')
+            warn('GH_TOKEN is missing the "workflow" scope (has: {}). GitHub can reject pushes '
+                 'of branches that include .github/workflows changes without it, which '
+                 'happens when your fork is behind an upstream that changed a workflow. '
+                 'Continuing anyway; if the push fails, add the scope at {}{}.'.format(
+                     ', '.join(sorted(scopes)), TOKEN_URL,
+                     '' if sync_fork else ' or enable --sync-fork'))
 
     for branch in branches:
         if get_branch_sha(UPSTREAM_OWNER, repo, branch, gh_username, gh_token) is None:
